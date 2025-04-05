@@ -4,6 +4,7 @@ import {
   removeContact as removeContactService,
   addContact as addContactService,
   updateContact as updateContactService,
+  updateContactStatus as updateContactStatusService,
 } from "../services/contactsServices.js";
 
 import HttpError from "../helpers/HttpError.js";
@@ -14,7 +15,7 @@ export const listContacts = async (req, res, next) => {
     const contacts = await listContactsService();
     res.status(200).json(contacts);
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 
@@ -28,7 +29,7 @@ export const getContactById = async (req, res, next) => {
     }
     res.status(200).json(contact);
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 
@@ -42,7 +43,7 @@ export const removeContact = async (req, res, next) => {
     }
     res.status(200).json(deleted);
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 
@@ -53,7 +54,7 @@ export const addContact = async (req, res, next) => {
     const newContact = await addContactService(name, email, phone);
     res.status(201).json(newContact);
   } catch (error) {
-      next(error);
+    next(error);
   }
 };
 
@@ -74,6 +75,23 @@ export const updateContact = async (req, res, next) => {
 
     res.status(200).json(updated);
   } catch (error) {
-      next(error);
+    next(error);
+  }
+};
+
+// PATCH /api/contacts/:id/favorite
+export const updateContactStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { favorite } = req.body;
+    const updatedContact = await updateContactStatusService(id, { favorite });
+
+    if (!updatedContact) {
+      throw HttpError(404, "Not found");
+    }
+
+    res.status(200).json(updatedContact);
+  } catch (error) {
+    next(error);
   }
 };

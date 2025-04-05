@@ -4,7 +4,8 @@ import {
   getContactById,
   removeContact,
   addContact,
-  updateContact
+  updateContact,
+  updateContactStatus
 } from '../controllers/contactsControllers.js';
 
 import {
@@ -21,5 +22,6 @@ contactsRouter.get('/:id', getContactById);
 contactsRouter.delete('/:id', removeContact);
 contactsRouter.post('/', validateBody(createContactSchema), addContact);
 contactsRouter.put('/:id', validateBody(updateContactSchema), updateContact);
+contactsRouter.patch('/:id/favorite', updateContactStatus);
 
 export default contactsRouter;

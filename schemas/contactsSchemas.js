@@ -3,6 +3,7 @@ import Joi from "joi";
 export const createContactSchema = Joi.object({
   name: Joi.string().trim().min(2).max(50).required(),
   email: Joi.string().trim().email().required(),
+  favorite: Joi.boolean(),
   phone: Joi.string()
     .trim()
     .pattern(/^\+?[0-9\s\-()]{7,20}$/)
@@ -26,8 +27,12 @@ export const updateContactSchema = Joi.object({
       'string.pattern.base':
         'Phone number must be between 7 and 20 characters, including digits, spaces, hyphens, and parentheses.',
     }),
-})
+  })
     .min(1)
     .messages({
       'object.min': 'Body must have at least one field.',
     });
+
+export const updateStatusContactSchema = Joi.object({
+  favorite: Joi.boolean().required(),
+});

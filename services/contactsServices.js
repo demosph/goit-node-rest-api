@@ -1,53 +1,37 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { nanoid } from 'nanoid';
-
-const contactsPath = path.resolve('db', 'contacts.json');
+import Contact from '../db/models/contacts.js';
 
 async function listContacts() {
-  const data = await fs.readFile(contactsPath, 'utf8');
-  return JSON.parse(data);
+  return await Contact.findAll();
 }
 
 async function getContactById(contactId) {
-  const contacts = await listContacts();
-  const contact = contacts.find(c => c.id === contactId);
+  const contact = await Contact.findByPk(contactId);
   return contact || null;
 }
 
 async function updateContact(contactId, updatedFields) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex(c => c.id === contactId);
-
-  if (index === -1) {
-    return null;
-  }
-
-  contacts[index] = { ...contacts[index], ...updatedFields };
-
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return contacts[index];
+  const contact = await Contact.findByPk(contactId);
+  if (!contact) return null;
+  await contact.update(updatedFields);
+  return contact;
 }
 
 async function removeContact(contactId) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex(c => c.id === contactId);
-  if (index === -1) {
-    return null;
-  }
-
-  const removedContact = contacts[index];
-  contacts.splice(index, 1);
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return removedContact;
+  const contact = await Contact.findByPk(contactId);
+  if (!contact) return null;
+  await contact.destroy();
+  return contact;
 }
 
 async function addContact(name, email, phone) {
-  const contacts = await listContacts();
-  const newContact = { id: nanoid(), name, email, phone };
-  contacts.push(newContact);
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return newContact;
+  return await Contact.create({ name, email, phone });
+}
+
+async function updateContactStatus(contactId, body) {
+  const contact = await Contact.findByPk(contactId);
+  if (!contact) return null;
+  await contact.update(body);
+  return contact;
 }
 
 export {
@@ -55,5 +39,6 @@ export {
   getContactById,
   removeContact,
   addContact,
-  updateContact
+  updateContact,
+  updateContactStatus
 };
