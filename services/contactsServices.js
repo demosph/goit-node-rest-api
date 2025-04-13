@@ -1,7 +1,7 @@
 import Contact from '../db/models/contacts.js';
 
-async function listContacts() {
-  return await Contact.findAll();
+async function listContacts(queryOptions = {}) {
+  return await Contact.findAll(queryOptions);
 }
 
 async function getContactById(contactId) {
@@ -23,8 +23,8 @@ async function removeContact(contactId) {
   return contact;
 }
 
-async function addContact(name, email, phone) {
-  return await Contact.create({ name, email, phone });
+async function addContact(name, email, phone, owner) {
+  return await Contact.create({ name, email, phone, owner });
 }
 
 async function updateContactStatus(contactId, body) {
