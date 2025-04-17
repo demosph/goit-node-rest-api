@@ -17,13 +17,17 @@ const User = sequelize.define(
         values: ["starter", "pro", "business"],
         defaultValue: "starter"
     },
+    avatarURL: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     token: {
       type: DataTypes.STRING,
       defaultValue: null,
-    },
+    }
   }
 );
 
-// User.sync()
+// await sequelize.sync({ alter: true });
 
 export default User;

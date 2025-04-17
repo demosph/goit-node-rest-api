@@ -1,5 +1,7 @@
 import * as authServices from '../services/authServices.js';
 import HttpError from '../helpers/HttpError.js';
+import fs from 'fs/promises';
+import path from 'path';
 
 // POST /api/auth/register
 export const register = async (req, res, next) => {
@@ -53,6 +55,34 @@ export const updateSubscription = async (req, res, next) => {
     const { subscription } = req.body;
     const updated = await authServices.updateUserSubscription(req.user.id, subscription);
     res.status(200).json(updated);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const avatarsDir = path.resolve('public', 'avatars');
+
+// PATCH /api/auth/avatar
+export const updateAvatar = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      throw HttpError(401, 'Not authorized');
+    }
+
+    if (!req.file) {
+      throw HttpError(400, 'No file uploaded');
+    }
+
+    const { path: tempPath, originalname } = req.file;
+    const filename = `${req.user.id}_${Date.now()}_${originalname}`;
+    const finalPath = path.join(avatarsDir, filename);
+    const avatarURL = `/avatars/${filename}`;
+
+    await fs.rename(tempPath, finalPath);
+
+    await req.user.update({ avatarURL });
+
+    res.status(200).json({ avatarURL });
   } catch (error) {
     next(error);
   }

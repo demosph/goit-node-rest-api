@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import gravatar from 'gravatar';
 
 import User from '../db/models/user.js';
 import HttpError from '../helpers/HttpError.js';
@@ -24,7 +25,9 @@ export const addUser = async payload => {
   }
 
   const password = await bcrypt.hash(payload.password, 10);
-  return await User.create({ ...payload, password });
+  const avatarURL = gravatar.url(email, { s: '250' }, true);
+
+  return await User.create({ ...payload, password, avatarURL });
 };
 
 export const login = async payload => {

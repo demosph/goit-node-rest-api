@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import path from 'path';
 import 'dotenv/config';
 
 import contactsRouter from "./routes/contactsRouter.js";
@@ -23,6 +24,8 @@ app.use((err, req, res, next) => {
   const { status = 500, message = "Server error" } = err;
   res.status(status).json({ message });
 });
+
+app.use(express.static(path.resolve('public')));
 
 const PORT = Number(process.env.PORT) || 3000;
 
