@@ -97,7 +97,7 @@ export const verifyUser = async verificationToken => {
     throw HttpError(404, 'User not found');
   }
 
-  user.update({
+  await user.update({
     verificationToken: null,
     verify: true,
   });
