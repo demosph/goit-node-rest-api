@@ -87,3 +87,30 @@ export const updateAvatar = async (req, res, next) => {
     next(error);
   }
 };
+
+// GET /api/auth/verify/:verificationToken
+export const verifyEmail = async (req, res, next) => {
+  try {
+    const { verificationToken } = req.params;
+    await authServices.verifyUser(verificationToken);
+
+    res.json({
+      message: 'Verification successful',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// POST /api/auth/verify
+export const resendVerificationEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    await authServices.sendVerification(email);
+    res.json({
+      message: 'Verification email sent',
+    });
+  } catch (error) {
+    next(error);
+  }
+};

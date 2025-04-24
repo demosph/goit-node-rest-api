@@ -5,13 +5,16 @@ import {
   logout,
   getCurrent,
   updateSubscription,
-  updateAvatar
+  updateAvatar,
+  verifyEmail,
+  resendVerificationEmail
 } from '../controllers/authControllers.js';
 
 import {
     registerSchema,
     loginSchema,
-    updateSubscriptionSchema
+    updateSubscriptionSchema,
+    verifyAuthSchema
 } from '../schemas/authSchemas.js';
 
 import auth from '../middlewares/auth.js';
@@ -36,5 +39,8 @@ authRouter.patch(
   upload.single('avatar'),
   updateAvatar
 );
+
+authRouter.get('/verify/:verificationToken', verifyEmail);
+authRouter.post('/verify', validateBody(verifyAuthSchema), resendVerificationEmail);
 
 export default authRouter;

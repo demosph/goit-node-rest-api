@@ -3,7 +3,8 @@ import gravatar from 'gravatar';
 
 import User from '../db/models/user.js';
 import HttpError from '../helpers/HttpError.js';
-import { generateToken } from '../helpers/jwt.js';
+import { generateToken, generateVerificationToken } from '../helpers/jwt.js';
+import { sendVerificationEmail } from './emailServices.js';
 
 const findUserByEmail = async email => {
   return await User.findOne({
@@ -12,6 +13,11 @@ const findUserByEmail = async email => {
     },
   });
 };
+
+const findUser = query =>
+  User.findOne({
+    where: query,
+  });
 
 export const findUserById = async userId => {
   return await User.findByPk(userId);
@@ -26,8 +32,11 @@ export const addUser = async payload => {
 
   const password = await bcrypt.hash(payload.password, 10);
   const avatarURL = gravatar.url(email, { s: '250' }, true);
+  const verificationToken = generateVerificationToken();
 
-  return await User.create({ ...payload, password, avatarURL });
+  await sendVerificationEmail(email, verificationToken);
+
+  return await User.create({ ...payload, password, avatarURL, verificationToken });
 };
 
 export const login = async payload => {
@@ -41,6 +50,10 @@ export const login = async payload => {
   const passwordIsValid = await bcrypt.compare(password, user.password);
   if (!passwordIsValid) {
     throw HttpError(401, 'Email or password is wrong');
+  }
+
+  if (!user.verify) {
+    throw HttpError(401, 'Email not verified');
   }
 
   const token = generateToken({ id: user.id });
@@ -76,4 +89,29 @@ export const updateUserSubscription = async (id, subscription) => {
     email: user.email,
     subscription: user.subscription,
   };
+};
+
+export const verifyUser = async verificationToken => {
+  const user = await findUser({ verificationToken });
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+
+  user.update({
+    verificationToken: null,
+    verify: true,
+  });
+};
+
+export const sendVerification = async email => {
+  const user = await findUserByEmail(email);;
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+
+  if (user.verify) {
+    throw HttpError(400, 'Verification has already been passed');
+  }
+
+  await sendVerificationEmail(email, user.verificationToken);
 };

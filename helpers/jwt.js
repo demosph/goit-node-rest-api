@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { nanoid } from 'nanoid';
 
 const {JWT_SECRET, JWT_TOKEN_EXPIRES_IN } = process.env;
 
@@ -21,3 +22,5 @@ export const verifyToken = token => {
         }
     }
 }
+
+export const generateVerificationToken = () => nanoid();
